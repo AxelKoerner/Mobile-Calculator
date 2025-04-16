@@ -97,69 +97,66 @@ fun CalcContent(modifier: Modifier) {
         ) {
             Text(text = input, fontSize = 28.sp)
         }
-        Column(modifier = modifier) {
-
-            for (row in buttons) {
-                Row() {
-                    for(button in row) {
-                        Button(
-                            shape = RoundedCornerShape(4.dp),
-                            onClick = {
-                                when(button) {
-                                    "C" -> {
-                                        input = ""
+        for (row in buttons) {
+            Row() {
+                for(button in row) {
+                    Button(
+                        shape = RoundedCornerShape(4.dp),
+                        onClick = {
+                            when(button) {
+                                "C" -> {
+                                    input = ""
+                                }
+                                "=" -> {
+                                    if(resetInput){
+                                        input = "";
+                                        resetInput = false
                                     }
-                                    "=" -> {
-                                        if(resetInput){
-                                            input = "";
-                                            resetInput = false
-                                        }
-                                        else if (input.isNotEmpty()){
-                                            resetInput = true
-                                            try {
-                                                val result = calculateResult(input, context)
-                                                history += result
-                                                input = "Result: $result"
-                                            } catch (e: ArithmeticException) {
-                                                Toast.makeText(context, "Invalid Input: Division by zero", Toast.LENGTH_SHORT).show()
-                                                input = "Error"
-                                            }
-                                        }
-                                    }
-                                    ")" -> {
-                                        //only allow closing parentheses if there is an opening parentheses
-                                        if (!areParenthesesBalanced(input)){
-                                            input += button
-                                            println(input)
-                                        }
-                                    }
-                                    else -> {
-                                        if(resetInput) input = ""; resetInput = false
-                                        //prevents the user from entering two operators consecutively.
-                                        //stops Inputs like "++", "**", "*+".
-                                        if (!(isOperator(button) && input.isNotEmpty() && charIsOperator(input.last()))) {
-                                            input += button
-                                            println(input)
+                                    else if (input.isNotEmpty()){
+                                        resetInput = true
+                                        try {
+                                            history += input
+                                            val result = calculateResult(input, context)
+                                            history += result
+                                            input = "= $result"
+                                        } catch (e: ArithmeticException) {
+                                            Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
+                                            input = "Error"
                                         }
                                     }
                                 }
-                            },
+                                ")" -> {
+                                    //only allow closing parentheses if there is an opening parentheses
+                                    if (!areParenthesesBalanced(input)){
+                                        input += button
+                                    }
+                                }
+                                else -> {
+                                    if(resetInput) input = ""; resetInput = false
+                                    //prevents the user from entering two operators consecutively.
+                                    //stops Inputs like "++", "**", "*+".
+                                    if (!(isOperator(button) && input.isNotEmpty() && charIsOperator(input.last()))) {
+                                        input += button
+                                    }
+                                }
+                            }
+                                  },
                             modifier = Modifier
                                 .padding(10.dp)
                                 .weight(3f)
                         ) {
-                            Text(text = button)
-                        }
+                        Text(text = button)
                     }
                 }
-
             }
+
         }
 
-        Row(modifier = modifier.padding(10.dp).fillMaxWidth(),
+        Row(modifier = modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween) {
             Button(onClick = {
                 showHistory(history)
+                input = history.joinToString("\n") //TODO remove
             }) {
                 Text("Show History")
             }
@@ -209,9 +206,25 @@ fun calculateResult(userInput: String, context: Context): String {
             Toast.makeText(context, "Invalid Input: To few arguments error", Toast.LENGTH_SHORT).show()
             return "Invalid Input: " + result
         }else{
+            //expression should not begin or end with an operator
             if (isOperator(tokens.first()) || isOperator((tokens.last()))){
                 Toast.makeText(context, "Invalid Input: Missing argument error", Toast.LENGTH_SHORT).show()
                 return "Invalid Input: " + result
+            }
+        }
+        // every parentheses should have and operator connecting it with other tokens
+        for (i in tokens.indices) {
+            if (tokens[i] == "(" && i != 0){
+                if (!isOperator(tokens[i-1])){
+                    Toast.makeText(context, "Invalid Input: Missing operator error", Toast.LENGTH_SHORT).show()
+                    return "Invalid Input: " + result
+                }
+            }
+            if (tokens[i] == ")" && i != tokens.size-1){
+                if (!isOperator(tokens[i+1])){
+                    Toast.makeText(context, "Invalid Input: Missing operator error", Toast.LENGTH_SHORT).show()
+                    return "Invalid Input: " + result
+                }
             }
         }
     }
@@ -236,15 +249,22 @@ fun calculateExpression(tokens: List<String>): String {
             }
         }
 
-        //rekursiv call with tokens in parentheses
-        val innerTokens = mutableTokens.subList(openIndex + 1, closeIndex)
-        val result = calculateExpression(innerTokens.toList())
+        //recursive call with tokens in parentheses
+        if ((closeIndex - openIndex) > 1){
+            val innerTokens = mutableTokens.subList(openIndex + 1, closeIndex)
+            val result = calculateExpression(innerTokens.toList())
 
-        //replace parentheses with result
-        for (j in 0..(closeIndex - openIndex)) {
-            mutableTokens.removeAt(openIndex)
+            //replace parentheses with result
+            for (j in 0..(closeIndex - openIndex)) {
+                mutableTokens.removeAt(openIndex)
+            }
+            mutableTokens.add(openIndex, result)
         }
-        mutableTokens.add(openIndex, result)
+        //Parentheses are empty
+        else {
+            throw ArithmeticException("Empty parentheses")
+        }
+
     }
     //evaluate * and / first
     while (mutableTokens.contains("*") || mutableTokens.contains("/")) {
