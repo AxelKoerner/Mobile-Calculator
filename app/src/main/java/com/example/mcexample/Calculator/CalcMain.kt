@@ -20,7 +20,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -57,7 +56,6 @@ class CalcMain : ComponentActivity() {
 @Composable
 fun CalcContent(modifier: Modifier) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
 
     val buttons = listOf(
         listOf("7", "8", "9", "C"),
@@ -68,6 +66,8 @@ fun CalcContent(modifier: Modifier) {
     var input by remember { mutableStateOf("") }
 
     val history = mutableListOf<String>()
+
+    var resetInput by remember { mutableStateOf(false)}
 
     // Showcase Lifecycle events
     LifecycleEventEffect(Lifecycle.Event.ON_CREATE) {
@@ -102,13 +102,15 @@ fun CalcContent(modifier: Modifier) {
                                 when(button) {
                                     "C" -> {
                                         input = ""
-                                        println(input)
                                     }
                                     "=" -> {
-                                        history += calculateResult(input)
-                                        input = ""
+                                        resetInput = true
+                                        var result = calculateResult(input)
+                                        history += result
+                                        input = "Result: $result"
                                     }
                                     else -> {
+                                        if(resetInput) input = ""; resetInput = false
                                         input += button
                                         println(input)
                                     }
@@ -145,7 +147,6 @@ fun CalcContent(modifier: Modifier) {
 
 fun calculateResult(userInput: String): String {
     var result = userInput
-    println("result")
     return result
 }
 
