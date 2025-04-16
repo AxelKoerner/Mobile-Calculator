@@ -210,9 +210,55 @@ fun calculateResult(userInput: String, context: Context): String {
             }
         }
     }
-    result = tokens.joinToString(" ")
+    result = calculateExpression(tokens)
 
     return result
+}
+
+fun calculateExpression(tokens: List<String>): String {
+    val mutableTokens = tokens.toMutableList()
+    if (tokens.contains("(")){
+        var newTokens = mutableListOf<String>()
+        //TODO implement this (rekursiv)
+    }else{
+
+    }
+    var currentResults = mutableListOf<String>()
+    //calculate * and / first
+    while (mutableTokens.contains("*") || mutableTokens.contains("/")) {
+        for (i in mutableTokens.indices) {
+            val token = mutableTokens[i]
+            if (token == "*" || token == "/") {
+                val arg1 = mutableTokens[i - 1].toInt()
+                val arg2 = mutableTokens[i + 1].toInt()
+                val result = if (token == "*") arg1 * arg2 else arg1 / arg2
+
+                //delete old tokens and add new result to list
+                mutableTokens.removeAt(i + 1)
+                mutableTokens.removeAt(i)
+                mutableTokens[i - 1] = result.toString()
+
+                break
+            }
+        }
+    }
+    while (mutableTokens.contains("+") || mutableTokens.contains("-")) {
+        for (i in mutableTokens.indices) {
+            val token = mutableTokens[i]
+            if (token == "+" || token == "-") {
+                val arg1 = mutableTokens[i - 1].toInt()
+                val arg2 = mutableTokens[i + 1].toInt()
+                val result = if (token == "+") arg1 + arg2 else arg1 - arg2
+
+                mutableTokens.removeAt(i + 1)
+                mutableTokens.removeAt(i)
+                mutableTokens[i - 1] = result.toString()
+
+                break
+            }
+        }
+    }
+    return mutableTokens.first()
 }
 
 fun tokenizeResult(userInput: String): List<String> {
