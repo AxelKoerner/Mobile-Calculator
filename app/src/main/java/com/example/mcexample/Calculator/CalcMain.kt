@@ -132,7 +132,7 @@ fun CalcContent(modifier: Modifier) {
                                         if(resetInput) input = ""; resetInput = false
                                         //prevents the user from entering two operators consecutively.
                                         //stops Inputs like "++", "**", "*+".
-                                        if (!(isOperator(button) && input.isNotEmpty() && input.last() in arrayOf('+', '-', '*', '/'))) {
+                                        if (!(isOperator(button) && input.isNotEmpty() && charIsOperator(input.last()))) {
                                             input += button
                                             println(input)
                                         }
@@ -181,6 +181,14 @@ fun isOperator(character: String): Boolean {
     return character in arrayOf("+", "-", "*", "/");
 }
 
+fun charIsOperator(char: Char): Boolean {
+    return char in arrayOf('+', '-', '*', '/')
+}
+
+fun charIsParentheses(char: Char): Boolean {
+    return char in arrayOf('(', ')')
+}
+
 fun calculateResult(userInput: String, context: Context): String {
     var result = userInput
 
@@ -188,7 +196,39 @@ fun calculateResult(userInput: String, context: Context): String {
         Toast.makeText(context, "Invalid Input: parentheses error", Toast.LENGTH_SHORT).show()
         return result
     }
+
+    val tokens = tokenizeResult(result)
+    result = tokens.joinToString(" ")
+
     return result
+}
+
+fun tokenizeResult(userInput: String): List<String> {
+    val tokens = mutableListOf<String>()
+    var currentNumber = ""
+
+    for (char in userInput) {
+        when {
+            char.isDigit() -> {
+                currentNumber += char
+            }
+
+            charIsOperator(char) || charIsParentheses(char) -> {
+                if (currentNumber.isNotEmpty()) {
+                    tokens.add(currentNumber)
+                    currentNumber = ""
+                }
+                tokens.add(char.toString())
+            }
+        }
+    }
+
+    if (currentNumber.isNotEmpty()) {
+        tokens.add(currentNumber)
+    }
+
+    return tokens
+
 }
 
 fun showHistory(history: List<String>) {
