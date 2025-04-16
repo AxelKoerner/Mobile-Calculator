@@ -61,7 +61,8 @@ fun CalcContent(modifier: Modifier) {
         listOf("7", "8", "9", "C"),
         listOf("4", "5", "6", "*"),
         listOf("1", "2", "3", "/"),
-        listOf("0", "+", "-", "=")
+        listOf("0", "+", "-", "="),
+        listOf("(", ")", "history", "download history")
     )
     var input by remember { mutableStateOf("") }
 
@@ -108,6 +109,12 @@ fun CalcContent(modifier: Modifier) {
                                         var result = calculateResult(input)
                                         history += result
                                         input = "Result: $result"
+                                    }
+                                    "history" -> {
+
+                                    }
+                                    "download history" -> {
+                                        
                                     }
                                     else -> {
                                         if(resetInput) input = ""; resetInput = false
