@@ -1,5 +1,6 @@
 package com.example.mcexample
 
+import android.content.Context
 import java.io.File
 import android.os.Bundle
 import android.widget.Toast
@@ -18,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalContext
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -62,7 +64,7 @@ fun CalcContent(modifier: Modifier) {
         listOf("4", "5", "6", "*"),
         listOf("1", "2", "3", "/"),
         listOf("0", "+", "-", "="),
-        listOf("(", ")", "history", "download history")
+        listOf("(", ")")
     )
     var input by remember { mutableStateOf("") }
 
@@ -78,7 +80,10 @@ fun CalcContent(modifier: Modifier) {
         Toast.makeText(context, "OnResume", Toast.LENGTH_SHORT).show()
     }
 
-    Column(modifier = modifier) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(5.dp)
+    ) {
         Row(modifier = modifier
             .fillMaxWidth()
             .height(100.dp)
@@ -105,21 +110,32 @@ fun CalcContent(modifier: Modifier) {
                                         input = ""
                                     }
                                     "=" -> {
-                                        resetInput = true
-                                        var result = calculateResult(input)
-                                        history += result
-                                        input = "Result: $result"
+                                        if(resetInput){
+                                            input = "";
+                                            resetInput = false
+                                        }
+                                        else if (input.isNotEmpty()){
+                                            resetInput = true
+                                            val result = calculateResult(input, context)
+                                            history += result
+                                            input = "Result: $result"
+                                        }
                                     }
-                                    "history" -> {
-
-                                    }
-                                    "download history" -> {
-                                        
+                                    ")" -> {
+                                        //only allow closing parentheses if there is an opening parentheses
+                                        if (!areParenthesesBalanced(input)){
+                                            input += button
+                                            println(input)
+                                        }
                                     }
                                     else -> {
                                         if(resetInput) input = ""; resetInput = false
-                                        input += button
-                                        println(input)
+                                        //prevents the user from entering two operators consecutively.
+                                        //stops Inputs like "++", "**", "*+".
+                                        if (!(isOperator(button) && input.isNotEmpty() && input.last() in arrayOf('+', '-', '*', '/'))) {
+                                            input += button
+                                            println(input)
+                                        }
                                     }
                                 }
                             },
@@ -151,9 +167,27 @@ fun CalcContent(modifier: Modifier) {
     }
 
 }
+fun areParenthesesBalanced(input: String): Boolean {
+    var count = 0
+    for (char in input) {
+        if (char == '(') count++
+        if (char == ')') count--
+        if (count < 0) return false
+    }
+    return count == 0
+}
 
-fun calculateResult(userInput: String): String {
+fun isOperator(character: String): Boolean {
+    return character in arrayOf("+", "-", "*", "/");
+}
+
+fun calculateResult(userInput: String, context: Context): String {
     var result = userInput
+
+    if (!areParenthesesBalanced(result)){
+        Toast.makeText(context, "Invalid Input: parentheses error", Toast.LENGTH_SHORT).show()
+        return result
+    }
     return result
 }
 
