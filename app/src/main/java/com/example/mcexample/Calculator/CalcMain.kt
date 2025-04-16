@@ -69,7 +69,7 @@ fun CalcContent(modifier: Modifier) {
     )
     var input by remember { mutableStateOf("") }
 
-    val history = mutableListOf<String>()
+    val history = remember{ mutableListOf<String>() }
 
     var resetInput by remember { mutableStateOf(false)}
 
