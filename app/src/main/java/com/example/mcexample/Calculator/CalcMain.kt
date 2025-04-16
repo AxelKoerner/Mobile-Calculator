@@ -217,49 +217,68 @@ fun calculateResult(userInput: String, context: Context): String {
 
 fun calculateExpression(tokens: List<String>): String {
     val mutableTokens = tokens.toMutableList()
-    if (tokens.contains("(")){
-        var newTokens = mutableListOf<String>()
-        //TODO implement this (rekursiv)
-        return mutableTokens.first()
-    }else{
-        //evaluate * and / first
-        while (mutableTokens.contains("*") || mutableTokens.contains("/")) {
-            for (i in mutableTokens.indices) {
-                val token = mutableTokens[i]
-                if (token == "*" || token == "/") {
-                    val arg1 = mutableTokens[i - 1].toInt()
-                    val arg2 = mutableTokens[i + 1].toInt()
-                    val result = if (token == "*") arg1 * arg2 else arg1 / arg2
+    while (mutableTokens.contains("(")) {
+        var openIndex = -1
+        var closeIndex = -1
 
-                    //delete old tokens and add new result to list
-                    mutableTokens.removeAt(i + 1)
-                    mutableTokens.removeAt(i)
-                    mutableTokens[i - 1] = result.toString()
-
-                    break
-                }
+        // get most inner parentheses
+        for (i in mutableTokens.indices) {
+            if (mutableTokens[i] == "(") {
+                openIndex = i
+            } else if (mutableTokens[i] == ")") {
+                closeIndex = i
+                break
             }
         }
-        //evaluate + and -
-        while (mutableTokens.contains("+") || mutableTokens.contains("-")) {
-            for (i in mutableTokens.indices) {
-                val token = mutableTokens[i]
-                if (token == "+" || token == "-") {
-                    val arg1 = mutableTokens[i - 1].toInt()
-                    val arg2 = mutableTokens[i + 1].toInt()
-                    val result = if (token == "+") arg1 + arg2 else arg1 - arg2
 
-                    mutableTokens.removeAt(i + 1)
-                    mutableTokens.removeAt(i)
-                    mutableTokens[i - 1] = result.toString()
+        //rekursiv call with tokens in parentheses
+        val innerTokens = mutableTokens.subList(openIndex + 1, closeIndex)
+        val result = calculateExpression(innerTokens.toList())
 
-                    break
-                }
-            }
+        //replace parentheses with result
+        for (j in 0..(closeIndex - openIndex)) {
+            mutableTokens.removeAt(openIndex)
         }
-        return mutableTokens.first()
+        mutableTokens.add(openIndex, result)
     }
+    //evaluate * and / first
+    while (mutableTokens.contains("*") || mutableTokens.contains("/")) {
+        for (i in mutableTokens.indices) {
+            val token = mutableTokens[i]
+            if (token == "*" || token == "/") {
+                val arg1 = mutableTokens[i - 1].toInt()
+                val arg2 = mutableTokens[i + 1].toInt()
+                val result = if (token == "*") arg1 * arg2 else arg1 / arg2
+
+                //delete old tokens and add new result to list
+                mutableTokens.removeAt(i + 1)
+                mutableTokens.removeAt(i)
+                mutableTokens[i - 1] = result.toString()
+
+                break
+            }
+        }
+    }
+    //evaluate + and -
+    while (mutableTokens.contains("+") || mutableTokens.contains("-")) {
+        for (i in mutableTokens.indices) {
+            val token = mutableTokens[i]
+            if (token == "+" || token == "-") {
+                val arg1 = mutableTokens[i - 1].toInt()
+                val arg2 = mutableTokens[i + 1].toInt()
+                val result = if (token == "+") arg1 + arg2 else arg1 - arg2
+
+                mutableTokens.removeAt(i + 1)
+                mutableTokens.removeAt(i)
+                mutableTokens[i - 1] = result.toString()
+
+                break
+            }
+        }
+    }
+    return mutableTokens.first()
 }
+
 
 fun tokenizeResult(userInput: String): List<String> {
     val tokens = mutableListOf<String>()
