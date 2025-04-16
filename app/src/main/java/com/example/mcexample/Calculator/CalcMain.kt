@@ -198,6 +198,18 @@ fun calculateResult(userInput: String, context: Context): String {
     }
 
     val tokens = tokenizeResult(result)
+
+    if (tokens.isNotEmpty()){
+        if (tokens.size < 3){
+            Toast.makeText(context, "Invalid Input: To few arguments error", Toast.LENGTH_SHORT).show()
+            return result
+        }else{
+            if (isOperator(tokens.first()) || isOperator((tokens.last()))){
+                Toast.makeText(context, "Invalid Input: Missing argument error", Toast.LENGTH_SHORT).show()
+                return result
+            }
+        }
+    }
     result = tokens.joinToString(" ")
 
     return result
