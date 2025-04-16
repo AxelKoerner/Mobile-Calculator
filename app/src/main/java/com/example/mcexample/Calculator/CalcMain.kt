@@ -116,9 +116,14 @@ fun CalcContent(modifier: Modifier) {
                                         }
                                         else if (input.isNotEmpty()){
                                             resetInput = true
-                                            val result = calculateResult(input, context)
-                                            history += result
-                                            input = "Result: $result"
+                                            try {
+                                                val result = calculateResult(input, context)
+                                                history += result
+                                                input = "Result: $result"
+                                            } catch (e: ArithmeticException) {
+                                                Toast.makeText(context, "Invalid Input: Division by zero", Toast.LENGTH_SHORT).show()
+                                                input = "Error"
+                                            }
                                         }
                                     }
                                     ")" -> {
@@ -194,7 +199,7 @@ fun calculateResult(userInput: String, context: Context): String {
 
     if (!areParenthesesBalanced(result)){
         Toast.makeText(context, "Invalid Input: parentheses error", Toast.LENGTH_SHORT).show()
-        return result
+        return "Invalid Input: " + result
     }
 
     val tokens = tokenizeResult(result)
@@ -202,11 +207,11 @@ fun calculateResult(userInput: String, context: Context): String {
     if (tokens.isNotEmpty()){
         if (tokens.size < 3){
             Toast.makeText(context, "Invalid Input: To few arguments error", Toast.LENGTH_SHORT).show()
-            return result
+            return "Invalid Input: " + result
         }else{
             if (isOperator(tokens.first()) || isOperator((tokens.last()))){
                 Toast.makeText(context, "Invalid Input: Missing argument error", Toast.LENGTH_SHORT).show()
-                return result
+                return "Invalid Input: " + result
             }
         }
     }
@@ -246,8 +251,11 @@ fun calculateExpression(tokens: List<String>): String {
         for (i in mutableTokens.indices) {
             val token = mutableTokens[i]
             if (token == "*" || token == "/") {
-                val arg1 = mutableTokens[i - 1].toInt()
-                val arg2 = mutableTokens[i + 1].toInt()
+                val arg1 = mutableTokens[i - 1].toDouble()
+                val arg2 = mutableTokens[i + 1].toDouble()
+                if (token == "/" && arg2.toInt() == 0){
+                    throw ArithmeticException("Division by zero")
+                }
                 val result = if (token == "*") arg1 * arg2 else arg1 / arg2
 
                 //delete old tokens and add new result to list
@@ -264,8 +272,8 @@ fun calculateExpression(tokens: List<String>): String {
         for (i in mutableTokens.indices) {
             val token = mutableTokens[i]
             if (token == "+" || token == "-") {
-                val arg1 = mutableTokens[i - 1].toInt()
-                val arg2 = mutableTokens[i + 1].toInt()
+                val arg1 = mutableTokens[i - 1].toDouble()
+                val arg2 = mutableTokens[i + 1].toDouble()
                 val result = if (token == "+") arg1 + arg2 else arg1 - arg2
 
                 mutableTokens.removeAt(i + 1)
