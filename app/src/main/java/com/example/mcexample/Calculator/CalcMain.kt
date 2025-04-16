@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -82,12 +83,12 @@ fun CalcContent(modifier: Modifier) {
 
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(5.dp)
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
         Row(modifier = modifier
             .fillMaxWidth()
-            .height(100.dp)
-            .padding(20.dp)
+            .height(60.dp)
+            .padding(20.dp, 0.dp)
             .background(color = Color.LightGray, shape = RoundedCornerShape(8.dp))
             .border(
                 width = 2.dp,
@@ -97,62 +98,75 @@ fun CalcContent(modifier: Modifier) {
         ) {
             Text(text = input, fontSize = 28.sp)
         }
-        for (row in buttons) {
-            Row() {
-                for(button in row) {
-                    Button(
-                        shape = RoundedCornerShape(4.dp),
-                        onClick = {
-                            when(button) {
-                                "C" -> {
-                                    input = ""
-                                }
-                                "=" -> {
-                                    if(resetInput){
-                                        input = "";
-                                        resetInput = false
+        Column(
+            modifier = modifier,
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            for (row in buttons) {
+                Row() {
+                    for (button in row) {
+                        Button(
+                            shape = RoundedCornerShape(4.dp),
+                            onClick = {
+                                when (button) {
+                                    "C" -> {
+                                        input = ""
                                     }
-                                    else if (input.isNotEmpty()){
-                                        resetInput = true
-                                        try {
-                                            history += input
-                                            val result = calculateResult(input, context)
-                                            history += result
-                                            input = "= $result"
-                                        } catch (e: ArithmeticException) {
-                                            Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
-                                            input = "Error"
+
+                                    "=" -> {
+                                        if (resetInput) {
+                                            input = "";
+                                            resetInput = false
+                                        } else if (input.isNotEmpty()) {
+                                            resetInput = true
+                                            try {
+                                                history += input
+                                                val result = calculateResult(input, context)
+                                                history += result
+                                                input = "= $result"
+                                            } catch (e: ArithmeticException) {
+                                                Toast.makeText(
+                                                    context,
+                                                    e.message,
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                                input = "Error"
+                                            }
+                                        }
+                                    }
+
+                                    ")" -> {
+                                        //only allow closing parentheses if there is an opening parentheses
+                                        if (!areParenthesesBalanced(input)) {
+                                            input += button
+                                        }
+                                    }
+
+                                    else -> {
+                                        if (resetInput) input = ""; resetInput = false
+                                        //prevents the user from entering two operators consecutively.
+                                        //stops Inputs like "++", "**", "*+".
+                                        if (!(isOperator(button) && input.isNotEmpty() && charIsOperator(
+                                                input.last()
+                                            ))
+                                        ) {
+                                            input += button
                                         }
                                     }
                                 }
-                                ")" -> {
-                                    //only allow closing parentheses if there is an opening parentheses
-                                    if (!areParenthesesBalanced(input)){
-                                        input += button
-                                    }
-                                }
-                                else -> {
-                                    if(resetInput) input = ""; resetInput = false
-                                    //prevents the user from entering two operators consecutively.
-                                    //stops Inputs like "++", "**", "*+".
-                                    if (!(isOperator(button) && input.isNotEmpty() && charIsOperator(input.last()))) {
-                                        input += button
-                                    }
-                                }
-                            }
-                                  },
+                            },
                             modifier = Modifier
                                 .padding(10.dp)
                                 .weight(3f)
                         ) {
-                        Text(text = button)
+                            Text(text = button)
+                        }
                     }
                 }
             }
-
         }
 
-        Row(modifier = modifier.fillMaxWidth(),
+        Row(modifier = modifier.fillMaxWidth().requiredHeight(80.dp).padding(20.dp,0.dp,20.dp,20.dp),
             horizontalArrangement = Arrangement.SpaceBetween) {
             Button(onClick = {
                 showHistory(history)
