@@ -1,8 +1,10 @@
 package com.example.mcexample
 
+import android.content.ContentValues
 import android.content.Context
-import java.io.File
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -176,7 +178,24 @@ fun CalcContent(modifier: Modifier) {
                 Text("Show History")
             }
             Button(onClick = {
-                exportHistory(history)
+                val contentValues = ContentValues().apply {
+                    put(MediaStore.Downloads.DISPLAY_NAME, "history")
+                    put(MediaStore.Downloads.MIME_TYPE, "text/plain")
+                    put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+                }
+                val uri = context.contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+
+                uri?.let {
+                    context.contentResolver.openOutputStream(it)?.use { outputStream ->
+                        outputStream.bufferedWriter().use { writer ->
+                            history.forEach { line ->
+                                writer.write(line)
+                                writer.newLine()
+                            }
+                        }
+                    }
+                }
+                Toast.makeText(context, "History exported", Toast.LENGTH_SHORT).show()
             }) {
                 Text("Export History")
             }
@@ -354,12 +373,5 @@ fun tokenizeResult(userInput: String): List<String> {
 fun showHistory(history: List<String>) {
     for((index, result) in history.withIndex()) {
         println("Result $index: $result")
-    }
-}
-//https://how.dev/answers/how-to-write-to-a-file-in-kotlin
-fun exportHistory(history: List<String>) {
-    val historyFile = File("history.txt")
-    for(result in history) {
-        historyFile.writeText(result)
     }
 }
