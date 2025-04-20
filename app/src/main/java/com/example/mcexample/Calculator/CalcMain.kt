@@ -13,14 +13,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalContext
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -83,24 +80,25 @@ fun CalcContent(modifier: Modifier) {
 
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.SpaceBetween
+        verticalArrangement = Arrangement.SpaceEvenly
     ) {
-        Row(modifier = modifier
+        Row(modifier = Modifier
             .fillMaxWidth()
-            .height(60.dp)
-            .padding(20.dp, 0.dp)
+            .weight(4f)
+            .padding(20.dp)
             .background(color = Color.LightGray, shape = RoundedCornerShape(8.dp))
             .border(
                 width = 2.dp,
                 color = Color.DarkGray,
                 shape = RoundedCornerShape(8.dp)
-            )
+            ),
         ) {
             Text(text = input, fontSize = 28.sp)
         }
         Column(
-            modifier = modifier,
-            verticalArrangement = Arrangement.SpaceBetween
+            modifier = Modifier
+                .weight(4f)
+                .padding(vertical = 10.dp, horizontal = 20.dp),
         ) {
             for (row in buttons) {
                 Row() {
@@ -156,7 +154,7 @@ fun CalcContent(modifier: Modifier) {
                                 }
                             },
                             modifier = Modifier
-                                .padding(10.dp)
+                                .padding(5.dp)
                                 .weight(3f)
                         ) {
                             Text(text = button)
@@ -166,8 +164,11 @@ fun CalcContent(modifier: Modifier) {
             }
         }
 
-        Row(modifier = modifier.fillMaxWidth().requiredHeight(80.dp).padding(20.dp,0.dp,20.dp,20.dp),
-            horizontalArrangement = Arrangement.SpaceBetween) {
+        Row(modifier = Modifier
+            .weight(1f)
+            .padding(vertical = 5.dp, horizontal = 20.dp)
+            .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly) {
             Button(onClick = {
                 showHistory(history)
                 input = history.joinToString("\n") //TODO remove
