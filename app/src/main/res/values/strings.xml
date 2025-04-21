@@ -1,4 +1,5 @@
 <resources>
-    <string name="app_name">Calculator</string>
-    <string name="title_activity_second">SecondActivity</string>
+    <string name="app_name">Homework 1</string>
+    <string name="title_activity_calc">Calculator</string>
+    <string name="title_activity_sensors">Sensors</string>
 </resources>

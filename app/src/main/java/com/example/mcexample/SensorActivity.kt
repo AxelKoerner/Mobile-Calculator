@@ -32,13 +32,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.random.Random
 
-class SecondActivity : ComponentActivity() {
+class SensorActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             // We created this McBaseLayout in an extra file to reuse it among different activities
-            McBaseLayout(title = stringResource(R.string.title_activity_second)) {
+            McBaseLayout(title = stringResource(R.string.title_activity_sensors)) {
                 innerPadding ->
                 // Our content is defined in its own Composable function.
                 SecondContent(Modifier.padding(innerPadding))

@@ -41,7 +41,7 @@ class CalcMain : ComponentActivity() {
             // We created this McBaseLayout in an extra file to reuse it among different activities
             // Using string resources instead of hardcoded strings in the app is good style for
             //  Android programming.
-            McBaseLayout(title = stringResource(R.string.app_name)) {
+            McBaseLayout(title = stringResource(R.string.title_activity_calc)) {
                     innerPadding ->
                 // Our content is defined in its own Composable function.
                 CalcContent(Modifier.padding(innerPadding))
