@@ -42,15 +42,13 @@ class SensorService : Service(), SensorEventListener, LocationListener {
     }
 
     private fun startForegroundServiceWithNotification() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                "sensor_channel",
-                "Sensor Überwachung",
-                NotificationManager.IMPORTANCE_DEFAULT
-            )
-            val manager = getSystemService(NotificationManager::class.java)
-            manager.createNotificationChannel(channel)
-        }
+        val channel = NotificationChannel(
+            "sensor_channel",
+            "Sensor Überwachung",
+            NotificationManager.IMPORTANCE_DEFAULT
+        )
+        val manager = getSystemService(NotificationManager::class.java)
+        manager.createNotificationChannel(channel)
 
         val notification = NotificationCompat.Builder(this, "sensor_channel")
             .setContentTitle("Sensor läuft")
