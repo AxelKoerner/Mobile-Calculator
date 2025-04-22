@@ -102,7 +102,10 @@ class SensorService : Service(), SensorEventListener, LocationListener {
     }
 
     private fun sendThresholdBroadcast(message: String) {
-        val intent = Intent("com.example.THRESHOLD_EXCEEDED")
+        val intent = Intent("com.example.THRESHOLD_EXCEEDED").setClassName(
+            packageName,
+            "com.example.mcexample.SensorBroadcastReceiver"
+        )
         intent.putExtra("message", message)
         sendBroadcast(intent)
     }
