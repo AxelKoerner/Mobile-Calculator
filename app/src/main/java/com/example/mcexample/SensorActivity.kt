@@ -31,6 +31,7 @@ fun SensorScreen() {
     var period by remember { mutableStateOf("10000") }
     var threshold by remember { mutableStateOf("5.0") }
 
+
     val requestPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->

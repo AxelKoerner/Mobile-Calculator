@@ -8,6 +8,7 @@ import android.hardware.*
 import android.location.*
 import android.os.*
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import java.util.*
 import kotlin.math.sqrt
@@ -29,6 +30,7 @@ class SensorService : Service(), SensorEventListener, LocationListener {
         locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         updatePeriod = intent?.getLongExtra("period", 10000L) ?: 10000L
         gyroscopeThreshold = intent?.getFloatExtra("threshold", 5f) ?: 5f
@@ -41,6 +43,7 @@ class SensorService : Service(), SensorEventListener, LocationListener {
         return START_STICKY
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun startForegroundServiceWithNotification() {
         val channel = NotificationChannel(
             "sensor_channel",
