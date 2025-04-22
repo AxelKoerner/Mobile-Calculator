@@ -29,8 +29,8 @@ class SensorActivity : ComponentActivity() {
 fun SensorScreen() {
     val context = LocalContext.current
     var period by remember { mutableStateOf("10000") }
-    var threshold by remember { mutableStateOf("5.0") }
-
+    var thresholdGps by remember { mutableStateOf("5.0") }
+    var thresholdGyro by remember { mutableStateOf("3.0") }
 
     val requestPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -38,7 +38,8 @@ fun SensorScreen() {
         if (isGranted) {
             val serviceIntent = Intent(context, SensorService::class.java).apply {
                 putExtra("period", period.toLongOrNull() ?: 10000L)
-                putExtra("threshold", threshold.toFloatOrNull() ?: 5f)
+                putExtra("thresholdGps", thresholdGps.toFloatOrNull() ?: 5f)
+                putExtra("thresholdGyro", thresholdGyro.toFloatOrNull() ?: 5f)
             }
             ContextCompat.startForegroundService(context, serviceIntent)
         } else {
@@ -56,9 +57,14 @@ fun SensorScreen() {
             label = { Text("Periodendauer (ms)") }
         )
         OutlinedTextField(
-            value = threshold,
-            onValueChange = { threshold = it },
-            label = { Text("Threshold") }
+            value = thresholdGps,
+            onValueChange = { thresholdGps = it },
+            label = { Text("Threshold_GPS") }
+        )
+        OutlinedTextField(
+            value = thresholdGyro,
+            onValueChange = { thresholdGyro = it },
+            label = { Text("Threshold_GYRO") }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -68,7 +74,8 @@ fun SensorScreen() {
             if (ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED) {
                 val serviceIntent = Intent(context, SensorService::class.java).apply {
                     putExtra("period", period.toLongOrNull() ?: 10000L)
-                    putExtra("threshold", threshold.toFloatOrNull() ?: 5f)
+                    putExtra("thresholdGps", thresholdGps.toFloatOrNull() ?: 5f)
+                    putExtra("thresholdGyro", thresholdGyro.toFloatOrNull() ?: 5f)
                 }
                 ContextCompat.startForegroundService(context, serviceIntent)
             } else {

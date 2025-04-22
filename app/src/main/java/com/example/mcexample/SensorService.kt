@@ -17,10 +17,10 @@ class SensorService : Service(), SensorEventListener, LocationListener {
     private lateinit var sensorManager: SensorManager
     private lateinit var locationManager: LocationManager
 
-    private var gyroscopeThreshold = 5f
+    private var gyroscopeThreshold = 3f
+    private var gpsThreshold = 5f
     private var updatePeriod = 10000L
 
-    private var timer: Timer? = null
     private var lastLocation: Location? = null
     private var lastGyro: FloatArray? = null
 
@@ -33,7 +33,8 @@ class SensorService : Service(), SensorEventListener, LocationListener {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         updatePeriod = intent?.getLongExtra("period", 10000L) ?: 10000L
-        gyroscopeThreshold = intent?.getFloatExtra("threshold", 5f) ?: 5f
+        gpsThreshold = intent?.getFloatExtra("thresholdGps", 5f) ?: 5f
+        gyroscopeThreshold = intent?.getFloatExtra("thresholdGyro", 3f) ?: 3f
 
         startForegroundServiceWithNotification()
         registerSensors()
@@ -122,7 +123,7 @@ class SensorService : Service(), SensorEventListener, LocationListener {
     override fun onLocationChanged(location: Location) {
         lastLocation?.let {
             val distance = location.distanceTo(it)
-            if (distance > gyroscopeThreshold) {
+            if (distance > gpsThreshold) {
                 sendThresholdBroadcast("GPS Bewegung: ${distance}m")
             }
         }
